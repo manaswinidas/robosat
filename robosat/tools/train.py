@@ -15,7 +15,8 @@ from torchvision.transforms import Compose, Resize, CenterCrop, Normalize
 
 from tqdm import tqdm
 
-from robosat.transforms import MaskToTensor, ConvertImageMode, ImageToTensor
+from robosat.transforms import JointCompose, JointTransform, JointRandomVerticalFlip, JointRandomHorizontalFlip, \
+                               JointRandomRotation, ConvertImageMode, ImageToTensor, MaskToTensor
 from robosat.datasets import SlippyMapTilesConcatenation
 from robosat.metrics import MeanIoU
 from robosat.losses import CrossEntropyLoss2d
@@ -192,30 +193,28 @@ def get_dataset_loaders(model, dataset):
 
     mean, std = dataset['stats']['mean'], dataset['stats']['std']
 
-    image_transform = Compose([
-        ConvertImageMode('RGB'),
-        Resize(target_size, Image.BILINEAR),
-        CenterCrop(target_size),
-        ImageToTensor(),
-        Normalize(mean=mean, std=std)])
-
-    target_transform = Compose([
-        ConvertImageMode('P'),
-        Resize(target_size, Image.NEAREST),
-        CenterCrop(target_size),
-        MaskToTensor()])
+    transform = JointCompose([
+        JointTransform(ConvertImageMode('RGB'), ConvertImageMode('P')),
+        JointTransform(Resize(target_size, Image.BILINEAR), Resize(target_size, Image.NEAREST)),
+        JointTransform(CenterCrop(target_size), CenterCrop(target_size)),
+        JointRandomVerticalFlip(0.5),
+        JointRandomHorizontalFlip(0.5),
+        JointRandomRotation(0.5, 90),
+        JointRandomRotation(0.5, 180),
+        JointRandomRotation(0.5, 270),
+        JointTransform(ImageToTensor(), MaskToTensor()),
+        JointTransform(Normalize(mean=mean, std=std), None)
+    ])
 
     train_dataset = SlippyMapTilesConcatenation(
         [os.path.join(path, 'training', 'images')],
-        [image_transform],
         os.path.join(path, 'training', 'labels'),
-        target_transform)
+        transform)
 
     val_dataset = SlippyMapTilesConcatenation(
         [os.path.join(path, 'validation', 'images')],
-        [image_transform],
         os.path.join(path, 'validation', 'labels'),
-        target_transform)
+        transform)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, drop_last=True)
