@@ -67,6 +67,7 @@ class UNet(nn.Module):
 
         super().__init__()
 
+        # Todo: make input channels configurable, not hard-coded to three channels for RGB
         self.block1 = Block(3, 64)
         self.down1 = Downsample()
 

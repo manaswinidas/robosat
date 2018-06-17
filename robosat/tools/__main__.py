@@ -2,8 +2,9 @@
 
 import argparse
 
-from robosat.tools import compare, cover, dedupe, download, extract, features, \
-    masks, merge, predict, rasterize, serve, stats, subset, train, weights
+from robosat.tools import compare, cover, dedupe, download, extract, export, \
+    features, masks, merge, predict, rasterize, serve, stats, subset, train, \
+    weights
 
 
 def add_parsers():
@@ -18,6 +19,7 @@ def add_parsers():
     rasterize.add_parser(subparser)
 
     train.add_parser(subparser)
+    export.add_parser(subparser)
     predict.add_parser(subparser)
     masks.add_parser(subparser)
     features.add_parser(subparser)
