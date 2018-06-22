@@ -50,7 +50,7 @@ def main(args):
     os.makedirs(model['common']['checkpoint'], exist_ok=True)
 
     num_classes = len(dataset['common']['classes'])
-    net = UNet(num_classes).to(device)
+    net = UNet(num_classes, pretrained=True).to(device)
 
     if args.resume:
         path = os.path.join(model['common']['checkpoint'], args.resume)
