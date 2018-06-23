@@ -81,7 +81,7 @@ class UNet(nn.Module):
        Also known as AlbuNet due to its inventor Alexander Buslaev.
     '''
 
-    def __init__(self, num_classes, num_filters=32, pretrained=False):
+    def __init__(self, num_classes, num_filters=32, pretrained=True):
         '''Creates an `UNet` instance for semantic segmentation.
 
         Args:
